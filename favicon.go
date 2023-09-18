@@ -19,7 +19,7 @@ import (
 	urls "net/url"
 	"path/filepath"
 
-	"github.com/friendsofgo/errors"
+	"github.com/pingcap/errors"
 )
 
 // UserAgent is sent in the User-Agent HTTP header.

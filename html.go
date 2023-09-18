@@ -11,7 +11,7 @@ import (
 	"strings"
 
 	gq "github.com/PuerkitoBio/goquery"
-	"github.com/friendsofgo/errors"
+	"github.com/pingcap/errors"
 )
 
 // entry point for URLs.

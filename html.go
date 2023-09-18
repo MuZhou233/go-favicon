@@ -14,7 +14,7 @@ import (
 	"github.com/friendsofgo/errors"
 )
 
-// entry point for URLs
+// entry point for URLs.
 func (p *parser) parseURL(url string) ([]*Icon, error) {
 	u, err := urls.Parse(url)
 	if err != nil {
@@ -35,7 +35,7 @@ func (p *parser) parseURL(url string) ([]*Icon, error) {
 	return p.parse(doc)
 }
 
-// entry point for io.Reader
+// entry point for io.Reader.
 func (p *parser) parseReader(r io.Reader) ([]*Icon, error) {
 	doc, err := gq.NewDocumentFromReader(r)
 	if err != nil {
@@ -44,7 +44,7 @@ func (p *parser) parseReader(r io.Reader) ([]*Icon, error) {
 	return p.parse(doc)
 }
 
-// main parser function
+// main parser function.
 func (p *parser) parse(doc *gq.Document) ([]*Icon, error) {
 	var (
 		icons       []*Icon
@@ -126,7 +126,7 @@ func (p *parser) parse(doc *gq.Document) ([]*Icon, error) {
 	return icons, nil
 }
 
-// extract icons defined in <link../> tags
+// extract icons defined in <link../> tags.
 func (p *parser) parseLink(sel *gq.Selection) []*Icon {
 	var (
 		href, _ = sel.Attr("href")
@@ -160,7 +160,7 @@ func (p *parser) parseLink(sel *gq.Selection) []*Icon {
 	return icons
 }
 
-// extract file extension from a URL
+// extract file extension from a URL.
 func fileExt(url string) string {
 	u, err := urls.Parse(url)
 	if err != nil {

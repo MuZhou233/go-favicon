@@ -11,6 +11,7 @@
 package favicon
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"mime"
@@ -22,26 +23,17 @@ import (
 )
 
 // UserAgent is sent in the User-Agent HTTP header.
-var UserAgent = "go-favicon/0.1"
+const UserAgent = "go-favicon/0.1"
 
 // Logger describes the logger used by Finder.
 type Logger interface {
 	Printf(string, ...interface{})
 }
 
-// black hole logger
+// black hole logger.
 type nullLogger struct{}
 
-func (l nullLogger) Printf(format string, arg ...interface{}) {}
-
-var (
-	finder *Finder          // used by package-level functions
-	client = &http.Client{} // default client used by Finder
-)
-
-func init() {
-	finder = New()
-}
+func (l nullLogger) Printf(string, ...interface{}) {}
 
 // Filter accepts/rejects/modifies Icons. If if returns nil, the Icon is ignored.
 // Set a Finder's filters by passing WithFilter(...) to New().
@@ -126,13 +118,16 @@ func MaxHeight(height int) Option {
 
 var (
 	// IgnoreWellKnown ignores common locations like /favicon.ico.
+	//nolint:gochecknoglobals //preset
 	IgnoreWellKnown Option = func(f *Finder) { f.ignoreWellKnown = true }
 
 	// IgnoreManifest ignores manifest.json files.
+	//nolint:gochecknoglobals //preset
 	IgnoreManifest Option = func(f *Finder) { f.ignoreManifest = true }
 
 	// IgnoreNoSize ignores icons with no specified size.
-	IgnoreNoSize Option = WithFilter(func(icon *Icon) *Icon {
+	//nolint:gochecknoglobals //preset
+	IgnoreNoSize = WithFilter(func(icon *Icon) *Icon {
 		if icon.Width == 0 || icon.Height == 0 {
 			return nil
 		}
@@ -140,10 +135,12 @@ var (
 	})
 
 	// OnlyPNG ignores non-PNG files.
-	OnlyPNG Option = OnlyMimeType("image/png")
+	//nolint:gochecknoglobals //preset
+	OnlyPNG = OnlyMimeType("image/png")
 
 	// OnlyICO ignores non-ICO files.
-	OnlyICO Option = WithFilter(func(icon *Icon) *Icon {
+	//nolint:gochecknoglobals //preset
+	OnlyICO = WithFilter(func(icon *Icon) *Icon {
 		if icon.MimeType == "image/x-icon" || icon.MimeType == "image/vnd.microsoft.icon" {
 			return icon
 		}
@@ -151,7 +148,8 @@ var (
 	})
 
 	// OnlySquare ignores non-square files. NOTE: Icons without a known size are also returned.
-	OnlySquare Option = WithFilter(func(icon *Icon) *Icon {
+	//nolint:gochecknoglobals //preset
+	OnlySquare = WithFilter(func(icon *Icon) *Icon {
 		if !icon.IsSquare() {
 			return nil
 		}
@@ -162,17 +160,17 @@ var (
 // Finder discovers favicons for a URL.
 // By default, a Finder looks in the following places:
 //
-//     - The HTML page at the given URL for...
-//         - icons in <link> tags
-//         - Open Graph images
-//         - Twitter images
-//     - The manifest file...
-//         - defined in the HTML page
-//           -- or --
-//         - /manifest.json
-//     - Standard favicon paths
-//         - /favicon.ico
-//         - /apple-touch-icon.png
+//	The HTML page at the given URL for...
+//	- icons in <link> tags
+//	- Open Graph images
+//	- Twitter images
+//	The manifest file...
+//	- defined in the HTML page
+//	  -- or --
+//	- /manifest.json
+//	Standard favicon paths
+//	- /favicon.ico
+//	- /apple-touch-icon.png
 //
 // Pass the IgnoreManifest and/or IgnoreWellKnown Options to New() to
 // reduce the number of requests made to webservers.
@@ -188,7 +186,7 @@ type Finder struct {
 func New(option ...Option) *Finder {
 	f := &Finder{
 		log:     nullLogger{},
-		client:  client,
+		client:  &http.Client{},
 		filters: []Filter{},
 	}
 	for _, fn := range option {
@@ -198,17 +196,8 @@ func New(option ...Option) *Finder {
 }
 
 // Find finds favicons for URL.
-func Find(url string) ([]*Icon, error) { return finder.Find(url) }
-
-// Find finds favicons for URL.
 func (f *Finder) Find(url string) ([]*Icon, error) {
 	return f.newParser().parseURL(url)
-}
-
-// FindReader finds a favicon in HTML. It accepts an optional base URL, which
-// is used to resolve relative links.
-func FindReader(r io.Reader, baseURL ...string) ([]*Icon, error) {
-	return finder.FindReader(r, baseURL...)
 }
 
 // FindReader finds a favicon in HTML.
@@ -226,7 +215,7 @@ func (f *Finder) FindReader(r io.Reader, baseURL ...string) ([]*Icon, error) {
 
 // Retrieve a URL and return response body. Returns an error if response status >= 300.
 func (f *Finder) fetchURL(url string) (io.ReadCloser, error) {
-	req, err := http.NewRequest("GET", url, nil)
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, url, nil)
 	if err != nil {
 		return nil, errors.Wrap(err, "request URL")
 	}
@@ -238,7 +227,7 @@ func (f *Finder) fetchURL(url string) (io.ReadCloser, error) {
 	}
 	f.log.Printf("[%d] %s", resp.StatusCode, url)
 
-	if resp.StatusCode > 299 {
+	if resp.StatusCode > 299 { //nolint:gomnd //TODO
 		_ = resp.Body.Close()
 		return nil, fmt.Errorf("[%d] %s", resp.StatusCode, resp.Status)
 	}
@@ -272,7 +261,7 @@ func (p *parser) absURL(url string) string {
 	return url
 }
 
-// return MIME type based on file extension in URL
+// return MIME type based on file extension in URL.
 func mimeTypeURL(url string) string {
 	u, err := urls.Parse(url)
 	if err != nil {

@@ -7,6 +7,10 @@ LDFLAGS ?= -X "main.version=$(VERSION)" -X "main.buildDate=$(BUILD_DATE)"
 GOFILES := $(shell find . -type f -name '*.go' )
 GOFMT ?= gofmt -s -w
 
+.PHONY: init
+init:
+	go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.54.2
+
 .PHONY: tidy
 tidy:
 	go mod tidy -v
@@ -21,7 +25,7 @@ golint:
 
 .PHONY: golangci
 golangci:
-	golangci-lint run -c .golangci.toml
+	golangci-lint run
 
 .PHONY: lint
 lint: golint golangci

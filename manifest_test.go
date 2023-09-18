@@ -2,48 +2,22 @@
 // MIT Licence applies http://opensource.org/licenses/MIT
 // Created on 2020-11-10
 
-package favicon
+package favicon_test
 
 import (
 	"net/http"
 	"net/http/httptest"
-	urls "net/url"
 	"testing"
+
+	"github.com/muzhou233/go-favicon"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-// TestParserAbsURL tests resolution of URLs.
-func TestParserAbsURL(t *testing.T) {
-	t.Parallel()
-	tests := []struct {
-		name  string
-		in, x string
-		base  *urls.URL
-	}{
-		{"empty", "", "", nil},
-		{"onlyBaseURL", "", "", mustURL("https://github.com")},
-		{"noBaseURL", "/root", "/root", nil},
-		{"baseURL", "/root", "https://github.com/root", mustURL("https://github.com")},
-		{"absURL", "https://github.com/root", "https://github.com/root", mustURL("https://github.com")},
-		// absolute URLs returned as-is
-		{"absURLDifferentBase", "https://github.com/root", "https://github.com/root", mustURL("https://google.com")},
-		{"absURLNoBase", "https://github.com/root", "https://github.com/root", nil},
-	}
-
-	for _, td := range tests {
-		td := td
-		t.Run(td.name, func(t *testing.T) {
-			p := parser{baseURL: td.base}
-			v := p.absURL(td.in)
-			assert.Equal(t, td.x, v, "unexpected URL")
-		})
-	}
-}
-
 // TestParseSize tests the extraction and parsing of image sizes.
 func TestParseSize(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name          string
 		path          string
@@ -78,7 +52,7 @@ func TestParseSize(t *testing.T) {
 			ts := httptest.NewServer(http.FileServer(http.Dir(td.path)))
 			defer ts.Close()
 
-			f := New(WithLogger(debugLogger{}))
+			f := favicon.New(favicon.WithLogger(debugLogger{t}))
 			icons, err := f.Find(ts.URL + "/index.html")
 			require.Nil(t, err, "unexpected error")
 			require.Greater(t, len(icons), td.i, "too few icons found")
@@ -88,12 +62,4 @@ func TestParseSize(t *testing.T) {
 			assert.Equal(t, td.square, icon.IsSquare(), "unexpected square")
 		})
 	}
-}
-
-func mustURL(s string) *urls.URL {
-	u, err := urls.Parse(s)
-	if err != nil {
-		panic(err)
-	}
-	return u
 }

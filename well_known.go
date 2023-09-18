@@ -4,10 +4,12 @@
 
 package favicon
 
-// IconNames are common names of icon files hosted in server roots.
-var IconNames = []string{
-	"favicon.ico",
-	"apple-touch-icon.png",
+// iconNames are common names of icon files hosted in server roots.
+func iconNames() []string {
+	return []string{
+		"favicon.ico",
+		"apple-touch-icon.png",
+	}
 }
 
 func (p *parser) findWellKnownIcons() []*Icon {
@@ -19,7 +21,7 @@ func (p *parser) findWellKnownIcons() []*Icon {
 		icons []*Icon
 		root  = p.baseURL.Scheme + "://" + p.baseURL.Host + "/"
 	)
-	for _, name := range IconNames {
+	for _, name := range iconNames() {
 		u := root + name
 		r, err := p.find.fetchURL(u)
 		if err != nil {

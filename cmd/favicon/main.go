@@ -17,11 +17,11 @@ import (
 	"strings"
 
 	"github.com/jedib0t/go-pretty/table"
-	"go.deanishe.net/favicon"
+	"github.com/muzhou233/go-favicon"
 )
 
 var (
-	// set by Makefile
+	// set by Makefile.
 	version   = "undefined"
 	buildDate = "undefined"
 )
@@ -95,8 +95,8 @@ func main() {
 	}
 
 	if *flagJSON {
-		data, err := json.MarshalIndent(icons, "", "  ")
-		checkErr(err)
+		data, err1 := json.MarshalIndent(icons, "", "  ")
+		checkErr(err1)
 		fmt.Println(string(data))
 		return
 	}

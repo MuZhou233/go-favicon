@@ -90,7 +90,7 @@ func parseSizes(s string) []size {
 	return sizes
 }
 
-// find dimensions in URL
+// find dimensions in URL.
 func extractSizeFromURL(url string) *size {
 	// try to find WxH pattern
 	v := parseSizes(url)

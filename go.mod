@@ -1,4 +1,4 @@
-module go.deanishe.net/favicon
+module github.com/muzhou233/go-favicon
 
 go 1.15
 

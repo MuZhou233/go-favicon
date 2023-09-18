@@ -2,12 +2,14 @@
 // MIT Licence applies http://opensource.org/licenses/MIT
 // Created on 2020-11-10
 
-package favicon
+package favicon_test
 
 import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/muzhou233/go-favicon"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -17,6 +19,7 @@ import (
 // NOTE: MIME types aren't tested because Go uses the system MIME
 // database, so results differ between machines.
 func TestFormat(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name string
 		path string
@@ -51,7 +54,7 @@ func TestFormat(t *testing.T) {
 			ts := httptest.NewServer(http.FileServer(http.Dir(td.path)))
 			defer ts.Close()
 
-			f := New(WithLogger(debugLogger{}))
+			f := favicon.New(favicon.WithLogger(debugLogger{t}))
 			icons, err := f.Find(ts.URL + "/index.html")
 			require.Nil(t, err, "unexpected error")
 			require.Greater(t, len(icons), td.i, "too few icons found")
@@ -80,7 +83,7 @@ func TestIconCopy(t *testing.T) {
 			ts := httptest.NewServer(http.FileServer(http.Dir(td.path)))
 			defer ts.Close()
 
-			f := New(WithClient(ts.Client()), WithLogger(debugLogger{}))
+			f := favicon.New(favicon.WithClient(ts.Client()), favicon.WithLogger(debugLogger{t}))
 			icons, err := f.Find(ts.URL + "/index.html")
 			require.Nil(t, err, "unexpected error")
 

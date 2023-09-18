@@ -50,18 +50,21 @@ func (i Icon) Copy() *Icon {
 // (PNG > JPEG > SVG > ICO).
 type ByWidth []*Icon
 
-// Implement sort.Interface
+// Implement sort.Interface.
 func (v ByWidth) Len() int      { return len(v) }
 func (v ByWidth) Swap(i, j int) { v[i], v[j] = v[j], v[i] }
 
 // used for sorting icons
-// higher number = higher priority
-var formatRank = map[string]int{
-	"image/png":                10,
-	"image/jpeg":               9,
-	"image/svg":                8,
-	"image/x-icon":             7, // .ico
-	"image/vnd.microsoft.icon": 7, // .ico
+// higher number = higher priority.
+// TODO null pointer error risk
+func formatRank() map[string]int {
+	return map[string]int{
+		"image/png":                10, //nolint:gomnd //TODO
+		"image/jpeg":               9,  //nolint:gomnd //TODO
+		"image/svg":                8,  //nolint:gomnd //TODO
+		"image/x-icon":             7,  //nolint:gomnd // .ico
+		"image/vnd.microsoft.icon": 7,  //nolint:gomnd // .ico
+	}
 }
 
 func (v ByWidth) Less(i, j int) bool {
@@ -69,7 +72,7 @@ func (v ByWidth) Less(i, j int) bool {
 	if a.Width != b.Width {
 		return a.Width > b.Width
 	}
-	fa, fb := formatRank[a.MimeType], formatRank[b.MimeType]
+	fa, fb := formatRank()[a.MimeType], formatRank()[b.MimeType]
 	if fa != fb {
 		return fa > fb
 	}

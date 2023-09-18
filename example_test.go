@@ -7,13 +7,13 @@ package favicon_test
 import (
 	"fmt"
 
-	"go.deanishe.net/favicon"
+	"github.com/muzhou233/go-favicon"
 )
 
 // Find favicons using default options.
 func ExampleNew() {
 	// Find icons defined in HTML, the manifest file and at default locations
-	icons, err := favicon.Find("https://www.deanishe.net")
+	icons, err := favicon.New().Find("https://www.deanishe.net")
 	if err != nil {
 		panic(err)
 	}

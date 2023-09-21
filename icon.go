@@ -56,14 +56,20 @@ func (v ByWidth) Swap(i, j int) { v[i], v[j] = v[j], v[i] }
 
 // used for sorting icons
 // higher number = higher priority.
-// TODO null pointer error risk
-func formatRank() map[string]int {
-	return map[string]int{
-		"image/png":                10, //nolint:gomnd //TODO
-		"image/jpeg":               9,  //nolint:gomnd //TODO
-		"image/svg":                8,  //nolint:gomnd //TODO
-		"image/x-icon":             7,  //nolint:gomnd // .ico
-		"image/vnd.microsoft.icon": 7,  //nolint:gomnd // .ico
+func formatRank(mimeType string) int {
+	switch mimeType {
+	case "image/png":
+		return 10 //nolint:gomnd // .png
+	case "image/jpeg":
+		return 9 //nolint:gomnd // .jpeg
+	case "image/svg":
+		return 8 //nolint:gomnd // .svg
+	case "image/x-icon":
+		return 7 //nolint:gomnd // .ico
+	case "image/vnd.microsoft.icon":
+		return 7 //nolint:gomnd // .ico
+	default:
+		return 0
 	}
 }
 
@@ -72,7 +78,7 @@ func (v ByWidth) Less(i, j int) bool {
 	if a.Width != b.Width {
 		return a.Width > b.Width
 	}
-	fa, fb := formatRank()[a.MimeType], formatRank()[b.MimeType]
+	fa, fb := formatRank(a.MimeType), formatRank(a.MimeType)
 	if fa != fb {
 		return fa > fb
 	}

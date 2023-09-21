@@ -227,7 +227,7 @@ func (f *Finder) fetchURL(url string) (io.ReadCloser, error) {
 	}
 	f.log.Printf("[%d] %s", resp.StatusCode, url)
 
-	if resp.StatusCode > 299 { //nolint:gomnd //TODO
+	if resp.StatusCode != http.StatusOK {
 		_ = resp.Body.Close()
 		return nil, fmt.Errorf("[%d] %s", resp.StatusCode, resp.Status)
 	}

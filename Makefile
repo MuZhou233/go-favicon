@@ -32,7 +32,7 @@ lint: golint golangci
 
 .PHONY: test
 test:
-	go test -json -cover -coverprofile cover.out | tparse
+	go test -coverpkg=./... -race -coverprofile=coverage.out -covermode=atomic ./...
 
 .PHONY: test-coverage
 test-coverage:
